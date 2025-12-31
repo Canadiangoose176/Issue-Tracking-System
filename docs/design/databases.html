@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Databases UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="page-databases">
+  <div class="wrapper">
+    <h1>DATABASES</h1>
+
+    <div class="canvas">
+      <aside aria-label="Primary navigation">
+        <button class="nav-btn issues" type="button" data-target="./index.html">Issues</button>
+        <button class="nav-btn milestones" type="button" data-target="./milestone.html">Milestones</button>
+        <button class="nav-btn users" type="button" data-target="./users.html">Users</button>
+        <button class="nav-btn databases active" type="button">Databases</button>
+      </aside>
+
+      <main class="content">
+        <div class="db-controls">
+          <button class="create" id="create-db-btn" type="button">Create Databases</button>
+          <input
+            class="search"
+            type="search"
+            id="db-search"
+            placeholder="Search for Database"
+            aria-label="Search for Database"
+          >
+        </div>
+
+        <div id="db-status" class="status-text" role="status" aria-live="polite"></div>
+
+        <div class="db-list" id="db-list" role="list"></div>
+        <div class="db-empty hidden" id="db-empty">No databases found. Try another name.</div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./databases.js"></script>
+</body>
+</html>

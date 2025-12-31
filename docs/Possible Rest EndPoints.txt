@@ -1,0 +1,44 @@
+- Rest Endpoints
+
+#Issue -
+Get Issue
+Get all Issues 
+    - Get all by certain criterias
+        - User id
+        - Status  Backlog / Working on / Completed
+        - Unassigned 
+Create Issue
+Set Status of Issue
+Edit Status of Issue
+Edit Issue
+    - Comments? Description? Title? Status? AssignedTo? Tags?
+Delete Issue
+Get Specific Issue
+Assign user to Issue
+Unassign user to Issue 
+Add / Delete / Change Priority
+
+#User - 
+Create user
+Delete user
+Get user
+Get all users
+Edit user
+    Edit name
+    Edit Role
+
+Add Role
+Delete Role
+Edit name
+
+#Comments -
+Get Comment
+get all Comments
+Add Comments
+Delete Comments
+Edit Title
+Edit Text 
+
+
+
+

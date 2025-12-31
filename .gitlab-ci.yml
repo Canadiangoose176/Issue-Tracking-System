@@ -1,0 +1,65 @@
+stages:
+   - documentation
+   - quality
+   - build
+   - unit_test
+   - active_tests
+
+variables:
+  GIT_STRATEGY: clone
+  TIMEOUT: 10m
+
+before_script:
+  - chmod +x scripts/build_sqlite.sh
+  - find third_party/sqlite-src -maxdepth 1 -name configure -exec chmod +x {} \;
+  - ./scripts/build_sqlite.sh
+  - export LD_LIBRARY_PATH="$PWD/third_party/sqlite-build/lib:${LD_LIBRARY_PATH:-}"
+
+docs:
+   stage: documentation
+   script:
+      - make docs
+   artifacts:
+      paths:
+         - docs/code/src
+
+versionInfo:
+   stage: documentation
+   script:
+      - make version
+
+styleCheck:
+   stage: quality
+   script:
+      - make style
+
+staticAnalysis:
+   stage: quality
+   script:
+      - make static
+
+buildTests:
+   stage: build
+   script:
+      - make test_project
+   artifacts:
+      paths:
+         - test_project
+
+unitTests:
+   stage: unit_test
+   script:
+      - ./test_project
+
+memoryLeaks:
+   stage: active_tests
+   script:
+      - make memcheck
+
+coverage:
+   stage: active_tests
+   script:
+      - make coverage
+   artifacts:
+     paths:
+        - coverage

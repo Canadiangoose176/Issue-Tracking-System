@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milestones UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="page-milestones">
+  <div class="wrapper">
+    <h1>MILESTONES UI</h1>
+
+    <div class="canvas">
+      <aside aria-label="Primary navigation">
+        <button class="nav-btn issues" type="button" data-target="./index.html">Issues</button>
+        <button class="nav-btn milestones active" type="button">Milestones</button>
+        <button class="nav-btn users" type="button" data-target="./users.html">Users</button>
+        <button class="nav-btn databases" type="button" data-target="./databases.html">Databases</button>
+      </aside>
+
+      <main class="content">
+        <div class="controls">
+          <button class="create" id="create-milestone-btn" type="button">Create Milestone</button>
+          <input
+            class="search"
+            type="search"
+            id="milestone-search"
+            placeholder="Search for Milestone"
+            aria-label="Search for Milestone"
+          >
+        </div>
+
+        <div id="milestone-status" class="status" role="status" aria-live="polite"></div>
+
+        <div class="list" id="milestone-list" role="list"></div>
+        <div class="empty hidden" id="milestone-empty">No milestones found. Try a different title.</div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./milestones.js"></script>
+</body>
+</html>

@@ -1,0 +1,1128 @@
+openapi: 3.0.0
+info:
+  title: Issue Tracking System API
+  description: REST API for Issue Tracking System (Milestone 2)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8600
+
+paths:
+  /issues:
+    post:
+      summary: Create a new issue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+      responses:
+        '201':
+          description: Issue created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '400':
+          description: Missing fields or invalid author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List all issues
+      responses:
+        '200':
+          description: List of issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+
+  /issues/unassigned:
+    get:
+      summary: List all unassigned issues
+      responses:
+        '200':
+          description: Unassigned issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+
+  /issues/{id}:
+    get:
+      summary: Get an issue by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Issue found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '404':
+          description: Issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update an issue field
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueUpdate'
+      responses:
+        '204':
+          description: Issue updated
+        '400':
+          description: Unable to update issue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Issue deleted
+        '404':
+          description: Issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/{id}/comments:
+    post:
+      summary: Add a comment to an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Issue or author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List comments for an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: Issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/{issueId}/comments/{commentId}:
+    patch:
+      summary: Update a comment
+      parameters:
+        - in: path
+          name: issueId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdate'
+      responses:
+        '204':
+          description: Comment updated
+        '400':
+          description: Missing text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Comment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a comment
+      parameters:
+        - in: path
+          name: issueId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Comment deleted
+        '404':
+          description: Comment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/{issueId}/unassign:
+    patch:
+      summary: Unassign a user from an issue
+      parameters:
+        - in: path
+          name: issueId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Issue unassigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '404':
+          description: Issue not found or cannot unassign
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /issues/{id}/tags:
+    post:
+      summary: Add a tag to an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '201':
+          description: Tag added
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Missing or invalid tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Remove a tag from an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '204':
+          description: Tag removed
+        '404':
+          description: Tag not found on issue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List tags for an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tags for the issue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '404':
+          description: Issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/tags/{tag}:
+    get:
+      summary: Find issues with a specific tag
+      parameters:
+        - in: path
+          name: tag
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Issues with the tag
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+
+  /issues/tags:
+    get:
+      summary: Find issues matching any of the provided tags
+      parameters:
+        - in: query
+          name: tags
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of tags to search for
+      responses:
+        '200':
+          description: Issues matching tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+
+  /tags:
+    get:
+      summary: List all tags
+      responses:
+        '200':
+          description: Tag definitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+
+  /tags/{tagId}:
+    delete:
+      summary: Delete a tag definition
+      parameters:
+        - in: path
+          name: tagId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag deleted
+        '404':
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a tag definition
+      parameters:
+        - in: path
+          name: tagId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Updated tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          description: Missing or invalid tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid name or role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    patch:
+      summary: Update a user field
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '204':
+          description: User updated
+        '400':
+          description: Unable to update user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{id}/issues:
+    get:
+      summary: List issues created or assigned to a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Issues for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Assign a user to an issue
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignIssue'
+      responses:
+        '200':
+          description: Issue after assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '400':
+          description: Missing issueId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User or issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /milestones:
+    post:
+      summary: Create a new milestone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MilestoneCreate'
+      responses:
+        '201':
+          description: Milestone created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          description: Invalid milestone payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List all milestones
+      responses:
+        '200':
+          description: List of milestones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Milestone'
+
+  /milestones/{id}:
+    get:
+      summary: Get a milestone by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Milestone found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update milestone fields
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MilestoneUpdate'
+      responses:
+        '200':
+          description: Updated milestone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          description: Invalid update payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: cascade
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Milestone deleted
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /milestones/{id}/issues:
+    get:
+      summary: List issues for a milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of issues in the milestone
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /milestones/{id}/issues/{issueId}:
+    post:
+      summary: Add an issue to a milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: issueId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated milestone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+        '400':
+          description: Issue already linked or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Milestone or issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Remove an issue from a milestone
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: issueId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Issue removed from milestone
+        '404':
+          description: Milestone or issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /databases:
+    get:
+      summary: List available databases
+      responses:
+        '200':
+          description: Databases available to the service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Database'
+    post:
+      summary: Create a new database file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseCreate'
+      responses:
+        '201':
+          description: Database created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+        '400':
+          description: Invalid database name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Database already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /databases/{name}:
+    delete:
+      summary: Delete a database file
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Database deleted
+        '404':
+          description: Database not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Cannot delete the active database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /databases/{name}/switch:
+    post:
+      summary: Switch the active database
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Active database changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+        '404':
+          description: Database not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/{id}/status:
+    put:
+      summary: Update issue status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: In Progress
+      responses:
+        '200':
+          description: Status updated
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Missing or invalid status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Issue not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /issues/status/{status}:
+    get:
+      summary: List issues filtered by status
+      parameters:
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Issues matching status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '400':
+          description: Invalid status value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        author_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        assigned_to:
+          type: string
+        comment_ids:
+          type: array
+          items:
+            type: integer
+            format: int32
+        created_at:
+          type: integer
+          format: int64
+        status:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    IssueCreate:
+      type: object
+      required:
+        - title
+        - author_id
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        author_id:
+          type: string
+
+    IssueUpdate:
+      type: object
+      required:
+        - field
+        - value
+      properties:
+        field:
+          type: string
+        value:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        author_id:
+          type: string
+        text:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+
+    CommentCreate:
+      type: object
+      required:
+        - text
+        - author_id
+      properties:
+        text:
+          type: string
+        author_id:
+          type: string
+
+    CommentUpdate:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        issueIds:
+          type: array
+          items:
+            type: integer
+            format: int32
+
+    MilestoneCreate:
+      type: object
+      required:
+        - name
+        - startDate
+        - endDate
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+
+    MilestoneUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+
+    UserCreate:
+      type: object
+      required:
+        - name
+        - role
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+
+    UserUpdate:
+      type: object
+      required:
+        - field
+        - value
+      properties:
+        field:
+          type: string
+        value:
+          type: string
+
+    AssignIssue:
+      type: object
+      required:
+        - issueId
+      properties:
+        issueId:
+          type: integer
+          format: int32
+
+    Tag:
+      type: object
+      required:
+        - tag
+      properties:
+        id:
+          type: integer
+          format: int32
+        tag:
+          type: string
+        color:
+          type: string
+
+    Database:
+      type: object
+      properties:
+        name:
+          type: string
+        active:
+          type: boolean
+
+    DatabaseCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string

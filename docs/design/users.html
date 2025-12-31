@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="page-users">
+  <div class="wrapper">
+    <h1>USER UI</h1>
+
+    <div class="canvas">
+      <aside aria-label="Primary navigation">
+        <button class="nav-btn issues" type="button" data-target="./index.html">Issues</button>
+        <button class="nav-btn milestones" type="button" data-target="./milestone.html">Milestones</button>
+        <button class="nav-btn users active" type="button">Users</button>
+        <button class="nav-btn databases" type="button" data-target="./databases.html">Databases</button>
+      </aside>
+
+      <main class="content">
+        <div class="user-controls">
+          <button class="create" id="create-user-btn" type="button">Create User</button>
+          <input
+            class="search"
+            type="search"
+            id="user-search"
+            placeholder="Search for User"
+            aria-label="Search for User"
+          >
+        </div>
+
+        <div id="user-status" class="status" role="status" aria-live="polite"></div>
+
+        <div class="user-list" id="user-list" role="list"></div>
+        <div class="user-empty hidden" id="user-empty">No users found. Try another name or role.</div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./users.js"></script>
+</body>
+</html>

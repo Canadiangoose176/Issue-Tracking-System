@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Issue Tracker UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="page-issues">
+  <div class="wrapper">
+    <h1>ISSUE CREATION UI</h1>
+
+    <div class="canvas">
+      <aside aria-label="Primary navigation">
+        <button class="nav-btn issues active" type="button" data-nav="issues">Issues</button>
+        <button class="nav-btn milestones" type="button" data-nav="milestones" data-target="./milestone.html">Milestones</button>
+        <button class="nav-btn users" type="button" data-nav="users" data-target="./users.html">Users</button>
+        <button class="nav-btn databases" type="button" data-nav="databases" data-target="./databases.html">Databases</button>
+      </aside>
+
+      <main class="content">
+        <div class="filters">
+          <div class="state-group">
+            <button class="state-btn" data-status="todo">To Be Done (#)</button>
+            <button class="state-btn" data-status="inprogress">In Progress (#)</button>
+            <button class="state-btn" data-status="done">Done (#)</button>
+            <button class="state-btn" data-status="all">All (#)</button>
+          </div>
+          <button class="create" id="create-issue-btn">Create Issue</button>
+        </div>
+
+        <input
+          class="search"
+          type="text"
+          id="issue-search"
+          placeholder="Search by id, author:, assignee:, or tags"
+          aria-label="Search issues"
+        >
+
+        <div id="load-status" class="status-bar"></div>
+
+        <div class="actions">
+          <button class="create" id="show-unassigned">All issues</button>
+        </div>
+
+        <div class="issues-list" id="issues-list"></div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
