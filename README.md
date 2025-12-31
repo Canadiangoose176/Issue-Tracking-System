@@ -129,10 +129,10 @@ doxygen
 
 ## Team
 
-* **Hetansh** — Issue & Comments
-* **Fletcher** — TextUI & User
-* **Colby** — Issue Tracker Controller & User Input Error Handling in TextUI
-* **Miller** — Issue Repository
+* **Hetansh** 
+* **Fletcher** 
+* **Colby** 
+* **Miller** 
 
 ## Team REST Endpoints 
 
