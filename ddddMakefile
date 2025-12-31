@@ -1,0 +1,244 @@
+################################################################################
+# Executables
+################################################################################
+
+PROJECT = project
+REST    = rest_server
+GTEST   = test_${PROJECT}
+
+################################################################################
+# Compiler + Flags
+################################################################################
+
+CXX = g++
+CXXVERSION = -std=c++17
+CXXFLAGS = ${CXXVERSION} -g
+CXXWITHCOVERAGEFLAGS = ${CXXFLAGS} -fprofile-arcs -ftest-coverage
+
+################################################################################
+# SQLite
+################################################################################
+
+SQLITE_PREFIX = third_party/sqlite-build
+
+################################################################################
+# OATPP (LOCAL BUILD)
+################################################################################
+
+OATPP_VERSION = 1.3.0
+OATPP_DIR = third_party/oatpp-${OATPP_VERSION}
+OATPP_SWAGGER_DIR = third_party/oatpp-swagger-${OATPP_VERSION}
+OATPP_BUILD_DIR = ${OATPP_DIR}/build
+OATPP_SWAGGER_BUILD_DIR = ${OATPP_SWAGGER_DIR}/build
+
+OATPP_INCLUDE = -I src -I ${OATPP_DIR}/src -I ${OATPP_SWAGGER_DIR}/src
+
+################################################################################
+# Directories
+################################################################################
+
+SRC_DIR = src
+MODEL_DIR = src/model
+REPO_DIR = src/repository
+VIEW_DIR = src/view
+CONTROLLER_DIR = src/controller
+SERVER_DIR = src/server
+PROJECT_SRC_DIR = src/project
+DTO_DIR = src/dto
+
+GTEST_DIR = test
+SRC_INCLUDE = include
+
+################################################################################
+# Include Paths
+################################################################################
+
+INCLUDE = $(OATPP_INCLUDE) \
+	-I include \
+	-I src \
+	-I src/dto \
+	-I third_party/sqlite-build/include
+
+################################################################################
+# Link Flags
+################################################################################
+
+LINKFLAGS = -lgtest -lgmock -pthread \
+	-L $(SQLITE_PREFIX)/lib \
+	-Wl,-rpath,$(abspath $(SQLITE_PREFIX)/lib) \
+	-L ${OATPP_BUILD_DIR} \
+	-L ${OATPP_SWAGGER_BUILD_DIR} \
+	-loatpp-swagger -loatpp \
+	-lsqlite3
+
+# Test-only link flags (without OATPP)
+TEST_LINKFLAGS = -lgtest -lgmock -pthread \
+	-L $(SQLITE_PREFIX)/lib \
+	-Wl,-rpath,$(abspath $(SQLITE_PREFIX)/lib) \
+	-lsqlite3
+
+################################################################################
+# Tools
+################################################################################
+
+GCOV = gcov
+LCOV = lcov
+COVERAGE_RESULTS = results.coverage
+COVERAGE_DIR = coverage
+STATIC_ANALYSIS = cppcheck
+STYLE_CHECK = cpplint
+DOXY_DIR = docs/code
+
+################################################################################
+# Sources
+################################################################################
+
+CORE_SRCS = \
+	$(wildcard ${SRC_DIR}/*.cpp) \
+	$(wildcard ${MODEL_DIR}/*.cpp) \
+	$(wildcard ${REPO_DIR}/*.cpp) \
+	$(wildcard ${VIEW_DIR}/*.cpp) \
+	$(wildcard ${CONTROLLER_DIR}/*.cpp)
+
+REST_SRCS = ${CORE_SRCS} \
+	$(wildcard ${SERVER_DIR}/*.cpp)
+
+################################################################################
+# Default target
+################################################################################
+
+.DEFAULT_GOAL := compileProject
+
+################################################################################
+# Dependencies
+################################################################################
+
+.PHONY: deps
+deps: ${OATPP_BUILD_DIR}/liboatpp.a ${OATPP_SWAGGER_BUILD_DIR}/liboatpp-swagger.a
+
+# Download and build oatpp
+${OATPP_DIR}/CMakeLists.txt:
+	@echo "Downloading oatpp ${OATPP_VERSION}..."
+	@mkdir -p third_party
+	@cd third_party && wget -q https://github.com/oatpp/oatpp/archive/refs/tags/${OATPP_VERSION}.tar.gz -O oatpp-${OATPP_VERSION}.tar.gz
+	@cd third_party && tar -xzf oatpp-${OATPP_VERSION}.tar.gz
+	@rm third_party/oatpp-${OATPP_VERSION}.tar.gz
+
+${OATPP_BUILD_DIR}/liboatpp.a: ${OATPP_DIR}/CMakeLists.txt
+	@echo "Building oatpp..."
+	@mkdir -p ${OATPP_BUILD_DIR}
+	@cd ${OATPP_BUILD_DIR} && cmake .. -DOATPP_BUILD_TESTS=OFF > /dev/null
+	@cd ${OATPP_BUILD_DIR} && make -j$(nproc) > /dev/null
+
+# Download and build oatpp-swagger
+${OATPP_SWAGGER_DIR}/CMakeLists.txt:
+	@echo "Downloading oatpp-swagger ${OATPP_VERSION}..."
+	@mkdir -p third_party
+	@cd third_party && wget -q https://github.com/oatpp/oatpp-swagger/archive/refs/tags/${OATPP_VERSION}.tar.gz -O oatpp-swagger-${OATPP_VERSION}.tar.gz
+	@cd third_party && tar -xzf oatpp-swagger-${OATPP_VERSION}.tar.gz
+	@rm third_party/oatpp-swagger-${OATPP_VERSION}.tar.gz
+
+${OATPP_SWAGGER_BUILD_DIR}/liboatpp-swagger.a: ${OATPP_SWAGGER_DIR}/CMakeLists.txt ${OATPP_BUILD_DIR}/liboatpp.a
+	@echo "Building oatpp-swagger..."
+	@mkdir -p ${OATPP_SWAGGER_BUILD_DIR}
+	@cd ${OATPP_SWAGGER_BUILD_DIR} && cmake .. -DOATPP_BUILD_TESTS=OFF > /dev/null
+	@cd ${OATPP_SWAGGER_BUILD_DIR} && make -j$(nproc) > /dev/null
+
+################################################################################
+# Clean
+################################################################################
+
+.PHONY: clean
+clean:
+	rm -rf *.gcov *.gcda *.gcno ${COVERAGE_RESULTS} ${COVERAGE_DIR}
+	rm -rf docs/code/html
+	rm -rf ${PROJECT} ${GTEST} ${REST}
+	rm -rf src/*.o src/model/*.o src/repository/*.o \
+	       src/view/*.o src/controller/*.o \
+	       src/server/*.o src/project/*.o
+	rm -rf *~ \#* .\#* src/*~ test/*~ include/*~
+
+.PHONY: distclean
+distclean: clean
+	rm -rf third_party/oatpp-${OATPP_VERSION}
+	rm -rf third_party/oatpp-swagger-${OATPP_VERSION}
+
+################################################################################
+# Object rule
+################################################################################
+
+%.o: %.cpp
+	${CXX} ${CXXFLAGS} -c $< -o $@
+
+################################################################################
+# Build
+################################################################################
+
+${GTEST}: clean
+	${CXX} ${CXXFLAGS} -o ./${GTEST} -I include -I src -I src/dto -I third_party/sqlite-build/include \
+	${GTEST_DIR}/*.cpp ${CORE_SRCS} ${TEST_LINKFLAGS}
+
+compileProject: clean deps
+	${CXX} ${CXXVERSION} -o ${PROJECT} ${INCLUDE} \
+	${CORE_SRCS} ${PROJECT_SRC_DIR}/*.cpp ${LINKFLAGS}
+
+rest: clean deps
+	${CXX} ${CXXVERSION} -o ${REST} ${INCLUDE} \
+	${REST_SRCS} ${LINKFLAGS}
+
+################################################################################
+# Extra
+################################################################################
+
+memcheck: ${GTEST}
+	valgrind --tool=memcheck --leak-check=yes \
+	--error-exitcode=1 ./${GTEST}
+
+coverage: clean
+	${CXX} ${CXXWITHCOVERAGEFLAGS} -o ./${GTEST} -I include -I src -I src/dto -I third_party/sqlite-build/include \
+	${GTEST_DIR}/*.cpp ${CORE_SRCS} ${TEST_LINKFLAGS}
+	./${GTEST}
+	${LCOV} --capture --gcov-tool ${GCOV} \
+	--directory . --output-file ${COVERAGE_RESULTS} \
+	--rc lcov_branch_coverage=1
+	${LCOV} --extract ${COVERAGE_RESULTS} */*/*/${SRC_DIR}/* \
+	-o ${COVERAGE_RESULTS}
+	genhtml ${COVERAGE_RESULTS} --output-directory ${COVERAGE_DIR}
+
+static:
+	${STATIC_ANALYSIS} --verbose --enable=all ${SRC_DIR} \
+	${SRC_INCLUDE} --suppress=missingInclude \
+	--error-exitcode=1
+
+style:
+	${STYLE_CHECK} ${SRC_DIR}/* ${GTEST_DIR}/* \
+	${SRC_INCLUDE}/* \
+	${MODEL_DIR}/* ${REPO_DIR}/* ${VIEW_DIR}/* \
+	${CONTROLLER_DIR}/* ${SERVER_DIR}/* \
+	${PROJECT_SRC_DIR}/*
+
+docs:
+	doxygen ${DOXY_DIR}/doxyfile
+
+run:
+	./${PROJECT}
+
+run-rest:
+	./${REST}
+
+################################################################################
+# Required by CI
+################################################################################
+
+.PHONY: version
+version:
+	doxygen --version
+	cppcheck --version
+	cpplint --version
+	gcc --version
+	gcov --version
+	lcov --version
+	valgrind --version
+
+.PHONY: test_project
+test_project: ${GTEST}
