@@ -134,9 +134,3 @@ doxygen
 * **Colby** 
 * **Miller** 
 
-## Team REST Endpoints 
-
-* **Hetansh** — Issue statuses
-* **Fletcher** — Project milestone's
-* **Colby** — Tags 
-* **Miller** — Persistence / databases
